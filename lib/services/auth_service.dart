@@ -1,21 +1,17 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:test/services/utils.dart';
 
 class AuthService {
   static const String API_URL =
-     "http://192.168.100.4:8000/api"; // Reemplaza con la URL de tu backend
+      "http://192.168.100.4:8000/api"; // Reemplaza con la URL de tu backend
+  static const String TOKEN = "token";
   // static const String api_url = "https://backend-tms-qh89.onrender.com/api";
 
-  static Future<Map<String, dynamic>> login(
-    String email,
-    String password,
-  ) async {
-    print(email);
-    print(password);
-    print(API_URL + "/auth/login");
+  static Future<Map<String, dynamic>> login(String email,String password) async {
     final response = await http.post(
-      Uri.parse(API_URL + "/auth/login"),
+      Uri.parse('$API_URL/auth/login'),
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
@@ -23,43 +19,49 @@ class AuthService {
       body: json.encode({'email': email, 'password': password}),
     );
 
-    if (response.statusCode == 200) {
-      print("iniciaste sesion");
-      // Si la respuesta es correcta, regresa el token y el usuario
-      return json.decode(response.body);
-    } else {
-      print("nada oe");
-      throw Exception('Error en el login');
-    }
+    final data = await Utils.handleResponse(response);
+    return {
+      "message":data["message"],
+    };
   }
 
   //REGISTRO
-  static Future<Map<String, dynamic>> signUp(String email, String password) async {
+  static Future<Map<String, dynamic>> signUp(String email,String password,String nombre) async {
     final response = await http.post(
-      Uri.parse('$API_URL/auth/signup'),
+      Uri.parse('$API_URL/auth/registrar'),
       headers: {"Content-Type": "application/json"},
-      body: json.encode({'email': email, 'password': password}),
+      body: json.encode({ 'email': email,'password': password,'nombre': nombre,}),
     );
 
-    if (response.statusCode == 201) {
-      return json.decode(response.body);
-    } else {
-      throw Exception('Failed to sign up');
-    }
+     final data = await Utils.handleResponse(response);
+    return {
+      "message":data["message"],
+    };
+  }
+
+  static Future<void> storeToken(String token) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(TOKEN, token); // Guarda el token en shared_preferences
+  }
+
+  // Método para obtener el token
+  static Future<String?> getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(TOKEN);
+  }
+
+  static Future<void> revokeToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove(TOKEN);
   }
 }
 
-  // Método para realizar el registro
+class Response {
+  static bool ok(int code) {
+    return code == 200 || code == 201;
+  }
+}
 
+// Método para realizar el registro
 
 // Método para almacenar el token
-Future<void> storeToken(String token) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  prefs.setString('user_token', token); // Guarda el token en shared_preferences
-}
-
-// Método para obtener el token
-Future<String?> getToken() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  return prefs.getString('user_token');
-}

@@ -32,7 +32,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:test/auth/welcome_screen.dart';
-import 'package:test/main.dart'; // Asegúrate de que este sea el import correcto
+// import 'package:test/main.dart'; // Asegúrate de que este sea el import correcto
 import 'package:test/auth/login_screen.dart';
 import 'package:test/auth/register_screen.dart';
 import 'package:test/auth/home_screen.dart';
