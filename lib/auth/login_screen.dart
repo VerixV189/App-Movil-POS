@@ -1,5 +1,8 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:test/providers/LoadingOverlay.dart';
+import 'package:test/providers/LoadingProvider.dart';
 import 'package:test/services/auth_service.dart'; // Importa tu servicio de autenticación
 import 'package:loading_animation_widget/loading_animation_widget.dart'; // Cargar la librería para la animación de carga
 
@@ -13,16 +16,16 @@ class LoginPageYTState extends State<LoginPageYT> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  bool _isLoading = false; // Variable para controlar si se está cargando
+ //bool _isLoading = false; // Variable para controlar si se está cargando
 
   // Método de login
   Future<void> _login() async {
     // Verificar si el formulario es válido antes de continuar
     if (_formKey.currentState?.validate() ?? false) {
-      setState(() {
-        _isLoading = true; // Inicia la animación de carga
-      });
-
+      // setState(() {
+      //   _isLoading = true; // Inicia la animación de carga
+      // });
+      Provider.of<LoadingProvider>(context, listen: false).startLoading();
       // Imprimir los valores de email y password antes de enviar la solicitud
       print("Email: ${emailController.text}");
       print("Password: ${passwordController.text}");
@@ -35,9 +38,7 @@ class LoginPageYTState extends State<LoginPageYT> {
         );
 
         // Detenemos la animación de carga después de recibir la respuesta
-        setState(() {
-          _isLoading = false;
-        });
+        Provider.of<LoadingProvider>(context, listen: false).stopLoading();
 
         if (loginResponseDTO != null) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -49,9 +50,10 @@ class LoginPageYTState extends State<LoginPageYT> {
         }
       } catch (error) {
         // Detener la animación de carga y mostrar el error
-        setState(() {
-          _isLoading = false;
-        });
+        // setState(() {
+        //   _isLoading = false;
+        // });
+        Provider.of<LoadingProvider>(context, listen: false).stopLoading();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al iniciar sesión: $error')),
         );
@@ -61,6 +63,7 @@ class LoginPageYTState extends State<LoginPageYT> {
       print("Formulario no válido");
       print(emailController.text); // Imprime el valor de email
       print(passwordController.text); // Imprime el valor de la contraseña
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Por favor, corrija los errores antes de continuar.'),
@@ -241,13 +244,14 @@ class LoginPageYTState extends State<LoginPageYT> {
             ),
           ),
               // El indicador de carga global (se muestra cuando el estado de carga es true)
-          if (_isLoading)
-            Center(
-              child: LoadingAnimationWidget.hexagonDots(
-                color: const Color(0xFFFF0084),
-                size: 100,
-              ),
-            ),
+          // if (_isLoading)
+          //   Center(
+          //     child: LoadingAnimationWidget.hexagonDots(
+          //       color: const Color(0xFFFF0084),
+          //       size: 100,
+          //     ),
+          //   ),
+          LoadingOverlay(),
         ],
       ),
     );

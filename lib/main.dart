@@ -240,16 +240,28 @@
 // ];
 
 
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:test/auth/home_screen.dart';
 import 'package:test/auth/login_screen.dart';
 import 'package:test/auth/register_screen.dart';
 import 'package:test/auth/welcome_screen.dart';
-
+import 'package:test/providers/LoadingProvider.dart';
 
 void main() {
   runApp(
-    MaterialApp(
+    ChangeNotifierProvider(
+      create: (context) => LoadingProvider(), // Proveedor del estado de carga
+      child: MyApp(),
+    ),
+  );
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
@@ -259,9 +271,32 @@ void main() {
         '/home':
             (context) => HomePageYT(), // Pantalla principal después de login
       },
-    ),
-  );
+    );
+  }
 }
+//version funcional
+// import 'package:flutter/material.dart';
+// import 'package:test/auth/home_screen.dart';
+// import 'package:test/auth/login_screen.dart';
+// import 'package:test/auth/register_screen.dart';
+// import 'package:test/auth/welcome_screen.dart';
+
+
+// void main() {
+//   runApp(
+//     MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       initialRoute: '/',
+//       routes: {
+//         '/': (context) => WelcomePage(),
+//         '/login': (context) => LoginPageYT(),
+//         '/signup': (context) => SignupPageYT(),
+//         '/home':
+//             (context) => HomePageYT(), // Pantalla principal después de login
+//       },
+//     ),
+//   );
+// }
 
 // import 'package:flutter/material.dart';
 
