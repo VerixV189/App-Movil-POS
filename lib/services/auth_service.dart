@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:test/models/UsuarioLoginDTO.dart';
 import 'package:test/services/utils.dart';
 
 class AuthService {
@@ -9,7 +10,13 @@ class AuthService {
   static const String TOKEN = "token";
   // static const String api_url = "https://backend-tms-qh89.onrender.com/api";
 
-  static Future<Map<String, dynamic>> login(String email,String password) async {
+  static Future<UsuarioLoginResponseDTO> login(
+    String email,
+    String password,
+  ) async {
+    print(email);
+    print(password);
+
     final response = await http.post(
       Uri.parse('$API_URL/auth/login'),
       headers: {
@@ -20,23 +27,32 @@ class AuthService {
     );
 
     final data = await Utils.handleResponse(response);
-    return {
-      "message":data["message"],
-    };
+    UsuarioLoginResponseDTO dtoUser = UsuarioLoginResponseDTO.fromJson(data);
+    print(dtoUser.message);
+    print(dtoUser.usuario);
+    print(dtoUser.token);
+    storeToken(dtoUser.token);
+    return dtoUser;
   }
 
   //REGISTRO
-  static Future<Map<String, dynamic>> signUp(String email,String password,String nombre) async {
+  static Future<Map<String, dynamic>> signUp(
+    String email,
+    String password,
+    String nombre,
+  ) async {
     final response = await http.post(
       Uri.parse('$API_URL/auth/registrar'),
       headers: {"Content-Type": "application/json"},
-      body: json.encode({ 'email': email,'password': password,'nombre': nombre,}),
+      body: json.encode({
+        'email': email,
+        'password': password,
+        'nombre': nombre,
+      }),
     );
 
-     final data = await Utils.handleResponse(response);
-    return {
-      "message":data["message"],
-    };
+    final data = await Utils.handleResponse(response);
+    return {"message": data["message"]};
   }
 
   static Future<void> storeToken(String token) async {

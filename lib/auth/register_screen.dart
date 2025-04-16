@@ -2,10 +2,16 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 
 class SignupPageYT extends StatelessWidget {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 0,
@@ -24,10 +30,13 @@ class SignupPageYT extends StatelessWidget {
 
           return SingleChildScrollView(
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1), // Ajuste dinámico
+              padding: EdgeInsets.symmetric(
+                horizontal: screenWidth * 0.1,
+              ), // Ajuste dinámico
               height: screenHeight - 50,
               width: double.infinity,
               child: Column(
+                key: _formKey,  
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   Column(
@@ -35,7 +44,7 @@ class SignupPageYT extends StatelessWidget {
                       FadeInUp(
                         duration: Duration(milliseconds: 1000),
                         child: Text(
-                          "Sign up",
+                          "Registro",
                           style: TextStyle(
                             fontSize: screenWidth * 0.08, // Ajuste dinámico
                             fontWeight: FontWeight.bold,
@@ -46,33 +55,71 @@ class SignupPageYT extends StatelessWidget {
                       FadeInUp(
                         duration: Duration(milliseconds: 1200),
                         child: Text(
-                          "Create an account, It's free",
-                          style: TextStyle(fontSize: screenWidth * 0.05, color: Colors.grey[700]),
+                          "Create una cuenta!, es Gratis",
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.05,
+                            color: Colors.grey[700],
+                          ),
                         ),
                       ),
                     ],
                   ),
                   Column(
                     children: <Widget>[
+                      // Nombre
                       FadeInUp(
                         duration: Duration(milliseconds: 1200),
-                        child: makeInput(label: "Email"),
+                        child: makeInput(
+                          label: "Nombre",
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please ingrese su nombre';
+                            }
+                            return null;
+                          },
+                        ),
                       ),
+                      // Email
                       FadeInUp(
                         duration: Duration(milliseconds: 1300),
-                        child: makeInput(label: "Password", obscureText: true),
+                        child: makeInput(
+                          label: "Email",
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Por favor ingrese un email';
+                            }
+                            bool emailValid = RegExp(
+                              r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
+                            ).hasMatch(value);
+                            if (!emailValid) {
+                              return 'Por favor ingrese un email valido';
+                            }
+                            return null;
+                          },
+                        ),
                       ),
+                      // Password
                       FadeInUp(
                         duration: Duration(milliseconds: 1400),
                         child: makeInput(
-                          label: "Confirm Password",
+                          label: "Password",
                           obscureText: true,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter a password';
+                            }
+                            if (value.length < 4) {
+                              return 'La contraseña debe ser de al menos 4 caracteres';
+                            }
+                            return null;
+                          },
                         ),
                       ),
                     ],
                   ),
+                  // Sign Up Button
                   FadeInUp(
-                    duration: Duration(milliseconds: 1500),
+                    duration: Duration(milliseconds: 1600),
                     child: Container(
                       padding: EdgeInsets.only(top: 3, left: 3),
                       decoration: BoxDecoration(
@@ -87,7 +134,11 @@ class SignupPageYT extends StatelessWidget {
                       child: MaterialButton(
                         minWidth: double.infinity,
                         height: screenHeight * 0.08, // Ajuste dinámico
-                        onPressed: () {},
+                        onPressed: () {
+                          if (_formKey.currentState?.validate() ?? false) {
+                            // Perform sign-up action
+                          }
+                        },
                         color: Colors.greenAccent,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
@@ -103,12 +154,13 @@ class SignupPageYT extends StatelessWidget {
                       ),
                     ),
                   ),
+                  // Redirect to Login
                   FadeInUp(
-                    duration: Duration(milliseconds: 1600),
+                    duration: Duration(milliseconds: 1700),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        Text("Already have an account?"),
+                        Text("Ya tiene una cuenta?"),
                         GestureDetector(
                           onTap: () {
                             Navigator.pushNamed(context, '/login');
@@ -133,7 +185,7 @@ class SignupPageYT extends StatelessWidget {
     );
   }
 
-  Widget makeInput({label, obscureText = false}) {
+  Widget makeInput({label, obscureText = false, validator}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -146,7 +198,7 @@ class SignupPageYT extends StatelessWidget {
           ),
         ),
         SizedBox(height: 5),
-        TextField(
+        TextFormField(
           obscureText: obscureText,
           decoration: InputDecoration(
             contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
@@ -157,12 +209,14 @@ class SignupPageYT extends StatelessWidget {
               borderSide: BorderSide(color: Colors.grey.shade400),
             ),
           ),
+          validator: validator,
         ),
         SizedBox(height: 30),
       ],
     );
   }
 }
+
 
 //supuesto responsive
 // import 'package:animate_do/animate_do.dart';
