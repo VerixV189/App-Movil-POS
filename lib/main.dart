@@ -243,11 +243,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:test/auth/home_screen.dart';
 import 'package:test/auth/login_screen.dart';
 import 'package:test/auth/register_screen.dart';
 import 'package:test/auth/welcome_screen.dart';
 import 'package:test/providers/LoadingProvider.dart';
+import 'package:test/widgets/botton_bart.dart';
 
 void main() {
   runApp(
@@ -265,11 +265,12 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
-        '/': (context) => WelcomePage(),
+        //'/': (context) => WelcomePage(),
+        '/': (context) => BottomNavPage(),
         '/login': (context) => LoginPageYT(),
         '/signup': (context) => SignupPageYT(),
         '/home':
-            (context) => HomePageYT(), // Pantalla principal después de login
+            (context) => BottomNavPage(), // Pantalla principal después de login
       },
     );
   }

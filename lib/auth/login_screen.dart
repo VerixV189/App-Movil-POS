@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:test/providers/LoadingOverlay.dart';
 import 'package:test/providers/LoadingProvider.dart';
 import 'package:test/services/auth_service.dart'; // Importa tu servicio de autenticación
-import 'package:loading_animation_widget/loading_animation_widget.dart'; // Cargar la librería para la animación de carga
+//import 'package:loading_animation_widget/loading_animation_widget.dart'; // Cargar la librería para la animación de carga
 
 class LoginPageYT extends StatefulWidget {
   @override
@@ -16,7 +16,22 @@ class LoginPageYTState extends State<LoginPageYT> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
- //bool _isLoading = false; // Variable para controlar si se está cargando
+  //bool _isLoading = false; // Variable para controlar si se está cargando
+  bool _obscureText = true;
+
+
+   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Acceder a los datos pasados desde la pantalla de registro
+    final arguments = ModalRoute.of(context)?.settings.arguments as Map?;
+    if (arguments != null) {
+      // Si hay datos, pre-cargar los campos de texto
+      emailController.text = arguments['email'] ?? '';
+      passwordController.text = arguments['password'] ?? '';
+    }
+  }
 
   // Método de login
   Future<void> _login() async {
@@ -40,14 +55,14 @@ class LoginPageYTState extends State<LoginPageYT> {
         // Detenemos la animación de carga después de recibir la respuesta
         Provider.of<LoadingProvider>(context, listen: false).stopLoading();
 
-        if (loginResponseDTO != null) {
+        //if (loginResponseDTO != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("${loginResponseDTO.message}")),
           );
 
           // Si el login es exitoso, navega a la pantalla principal
           Navigator.pushReplacementNamed(context, '/home');
-        }
+      //  }
       } catch (error) {
         // Detener la animación de carga y mostrar el error
         // setState(() {
@@ -59,6 +74,7 @@ class LoginPageYTState extends State<LoginPageYT> {
         );
       }
     } else {
+      Provider.of<LoadingProvider>(context, listen: false).stopLoading();
       // Si el formulario no es válido, mostramos un mensaje
       print("Formulario no válido");
       print(emailController.text); // Imprime el valor de email
@@ -133,6 +149,7 @@ class LoginPageYTState extends State<LoginPageYT> {
                             children: <Widget>[
                               FadeInUp(
                                 duration: Duration(milliseconds: 1200),
+                                //input de email
                                 child: makeInput(
                                   label: "Email",
                                   controller:
@@ -153,11 +170,11 @@ class LoginPageYTState extends State<LoginPageYT> {
                               ),
                               FadeInUp(
                                 duration: Duration(milliseconds: 1300),
-                                child: makeInput(
+                                child: makePasswordInput(
                                   label: "Password",
                                   controller:
                                       passwordController, // Asegúrate de que el controlador esté vinculado
-                                  obscureText: true,
+                                  obscureText: _obscureText,
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Por favor ingrese una contraseña!';
@@ -243,7 +260,7 @@ class LoginPageYTState extends State<LoginPageYT> {
               ],
             ),
           ),
-              // El indicador de carga global (se muestra cuando el estado de carga es true)
+          // El indicador de carga global (se muestra cuando el estado de carga es true)
           // if (_isLoading)
           //   Center(
           //     child: LoadingAnimationWidget.hexagonDots(
@@ -254,6 +271,58 @@ class LoginPageYTState extends State<LoginPageYT> {
           LoadingOverlay(),
         ],
       ),
+    );
+  }
+
+
+  // Método para mostrar el input de contraseña con un ícono de ver/ocultar
+  //creo que es un componente de password input
+  Widget makePasswordInput({
+    label,
+    obscureText = false,
+    validator,
+    TextEditingController? controller,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w400,
+            color: Colors.black87,
+          ),
+        ),
+        SizedBox(height: 5),
+        TextFormField(
+          controller: controller,
+          obscureText: obscureText,
+          decoration: InputDecoration(
+            contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey.shade400),
+            ),
+            border: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey.shade400),
+            ),
+            suffixIcon: IconButton(
+              icon: Icon(
+                obscureText ? Icons.visibility_off : Icons.visibility,
+                color: Colors.grey,
+              ),
+              onPressed: () {
+                setState(() {
+                  _obscureText =
+                      !_obscureText; // Cambiar el valor de la visibilidad
+                });
+              },
+            ),
+          ),
+          validator: validator,
+        ),
+        SizedBox(height: 30),
+      ],
     );
   }
 

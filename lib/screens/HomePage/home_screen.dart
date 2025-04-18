@@ -1,3 +1,45 @@
+import 'package:flutter/material.dart';
+import 'package:test/screens/HomePage/CategoryGrid.dart';
+import 'package:test/screens/HomePage/ProductGrid.dart';
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Tienda")),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 16),
+            const CategoryGrid(),
+            const SizedBox(height: 24),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  Text(
+                    "Productos",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            const ProductGrid(),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
+
+
 // // home_screen.dart
 // import 'package:flutter/material.dart';
 // import 'product_card.dart'; // Importa tu widget de tarjeta de producto
