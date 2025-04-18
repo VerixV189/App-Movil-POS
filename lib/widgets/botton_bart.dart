@@ -20,12 +20,14 @@ class _BottomNavPageState extends State<BottomNavPage> {
     //  ServiciosScreen(),
     //  CarritoScreen(),
   final List<Widget> _pages = [
-    const HomeScreen(),
+    HomeScreen(),
     ServiciosScreen(),
     CarritoScreen(),
     //const Center(child: Text("Servicios próximamente")),
     //const Center(child: Text("Carrito próximamente")),
+    //PerfilScreen(),
     PerfilScreen(),
+    //Builder(builder: (_) => PerfilScreen()),
   ];
 
   final List<String> _titles = const [

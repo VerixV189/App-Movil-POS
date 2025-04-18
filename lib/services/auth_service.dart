@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/models/AuthRegisterResponseDTO.dart';
 import 'package:test/models/AuthUserResponseDTO.dart';
+import 'package:test/models/interfaces/IUsuario.dart';
 import 'package:test/providers/UserProvider.dart';
 import 'package:test/services/API/server_url.dart';
 import 'package:test/services/JWT/storage.dart';
@@ -33,8 +34,10 @@ class AuthService {
 
     AuthUserResponseDTO dtoUser = AuthUserResponseDTO.fromJson(data);
 
+    //guardo al usuario en el contexto(RAM)
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     userProvider.setUsuario(dtoUser.usuario);
+
     print(dtoUser.message);
     print(dtoUser.usuario);
     print(dtoUser.token);
@@ -71,21 +74,31 @@ class AuthService {
     return authUserdto;
   }
 
+  //solo para verificar el token
   static Future<bool> verifyToken(String token) async {
-    
-      final response = await http.get(
-        Uri.parse('${Server.API_URL}/auth/me'),
-        headers: {
-          "Authorization":"Bearer $token"
-        },
-      );
+    final response = await http.get(
+      Uri.parse('${Server.API_URL}/auth/me'),
+      headers: {"Authorization": "Bearer $token"},
+    );
 
-      if (Response.ok(response.statusCode)) {
-        return true;
-      }
-      
-      return false;
-    
+    if (Response.ok(response.statusCode)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  static Future<Usuario> getUserToken(String token) async {
+    final response = await http.get(
+      Uri.parse('${Server.API_URL}/auth/me'),
+      headers: {"Authorization": "Bearer $token"},
+    );
+
+    final data = await Utils.handleResponse(response);
+
+     Usuario authUserdto =
+        Usuario.fromJson(data['usuario']);
+    return authUserdto;
   }
 }
 

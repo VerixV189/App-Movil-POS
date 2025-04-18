@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:test/providers/UserProvider.dart';
+import 'package:test/screens/PerfilPage/change_password.dart';
+import 'package:test/screens/PerfilPage/change_profile_photo.dart';
+import 'package:test/services/API/server_url.dart';
 
 class PerfilScreen extends StatelessWidget {
-  final Map<String, String> user = {
-    'name': 'Fernando Padilla Lopez',
-    'username': '6-fercho-9',
-    'email': 'fernando@gmail.com',
-    'role': 'ADMINISTRADOR',
-    'location': 'Santa Cruz/Bolivia',
-    'profilePic': 'https://i.imgur.com/N5uCbDu.png',
-  };
+  const PerfilScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final usuario = Provider.of<UserProvider>(context).usuario;
+    print("Usuario actual: ${usuario}");
+    if (usuario == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -21,20 +25,27 @@ class PerfilScreen extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 55,
-                backgroundImage: NetworkImage(user['profilePic']!),
+                //NetworkImage(
+                // '{$Server.CLOUDINARY_URL}/${usuario.url_profile!}',
+                //)
+                backgroundImage:
+                    usuario.url_profile != null
+                        ? NetworkImage(
+                          '${Server.CLOUDINARY_URL}/${usuario.url_profile!}',
+                        )
+                        : const NetworkImage('https://i.imgur.com/N5uCbDu.png'),
               ),
               const SizedBox(height: 12),
               Text(
-                user['name']!,
+                usuario.nombre,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 4),
-              Text(user['role']!, style: const TextStyle(color: Colors.grey)),
               Text(
-                user['location']!,
+                usuario.rol.nombre ?? 'Rol desconocido',
                 style: const TextStyle(color: Colors.grey),
               ),
             ],
@@ -53,7 +64,12 @@ class PerfilScreen extends StatelessWidget {
                 onPressed: () {
                   showDialog(
                     context: context,
-                    builder: (_) => EditUserDialog(user: user),
+                    builder:
+                        (_) => EditUserDialog(
+                          name: usuario.nombre,
+                          username: usuario.username,
+                          email: usuario.email,
+                        ),
                   );
                 },
               ),
@@ -61,10 +77,10 @@ class PerfilScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 8),
-                  Text("Nombre: ${user['name']}"),
-                  Text("Username: ${user['username']}"),
-                  Text("Email: ${user['email']}"),
-                  Text("Rol: ${user['role']}"),
+                  Text("Nombre: ${usuario.nombre}"),
+                  Text("Username: ${usuario.username}"),
+                  Text("Email: ${usuario.email}"),
+                  Text("Rol: ${usuario.rol.nombre ?? 'No definido'}"),
                 ],
               ),
             ),
@@ -72,9 +88,12 @@ class PerfilScreen extends StatelessWidget {
           const SizedBox(height: 16),
 
           // Botones para acciones
-          ElevatedButton.icon(
+         ElevatedButton.icon(
             onPressed: () {
-              // Cambiar contraseña
+              showDialog(
+                context: context,
+                builder: (_) => const CambiarContraseniaDialog(),
+              );
             },
             icon: const Icon(Icons.lock_reset),
             label: const Text("Cambiar Contraseña"),
@@ -85,7 +104,10 @@ class PerfilScreen extends StatelessWidget {
           const SizedBox(height: 12),
           ElevatedButton.icon(
             onPressed: () {
-              // Cambiar foto de perfil
+              showDialog(
+                context: context,
+                builder: (_) => const CambiarFotoDialog(),
+              );
             },
             icon: const Icon(Icons.image),
             label: const Text("Cambiar Foto de Perfil"),
@@ -93,6 +115,7 @@ class PerfilScreen extends StatelessWidget {
               minimumSize: const Size.fromHeight(50),
             ),
           ),
+
         ],
       ),
     );
@@ -100,15 +123,22 @@ class PerfilScreen extends StatelessWidget {
 }
 
 class EditUserDialog extends StatelessWidget {
-  final Map<String, String> user;
+  final String name;
+  final String username;
+  final String email;
 
-  const EditUserDialog({super.key, required this.user});
+  const EditUserDialog({
+    super.key,
+    required this.name,
+    required this.username,
+    required this.email,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final nameController = TextEditingController(text: user['name']);
-    final usernameController = TextEditingController(text: user['username']);
-    final emailController = TextEditingController(text: user['email']);
+    final nameController = TextEditingController(text: name);
+    final usernameController = TextEditingController(text: username);
+    final emailController = TextEditingController(text: email);
 
     return AlertDialog(
       title: const Text("Editar Información"),
@@ -136,7 +166,7 @@ class EditUserDialog extends StatelessWidget {
         ),
         ElevatedButton(
           onPressed: () {
-            // Guardar la edición
+            // Guardar los cambios
             Navigator.pop(context);
           },
           child: const Text("Guardar"),
