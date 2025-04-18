@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:test/screens/CarritoPage/carrito_screen.dart';
+import 'package:test/screens/PerfilPage/perfil_screen.dart';
 import 'package:test/widgets/custom_header.dart';
 import 'package:test/screens/HomePage/home_screen.dart';
 import 'package:test/screens/carrito_screen.dart';
-import 'package:test/screens/servicios_screen.dart';
-import 'package:test/screens/HomePage/perfil_screen.dart';
+import 'package:test/screens/ServicioPage/servicios_screen.dart';
+
 
 class BottomNavPage extends StatefulWidget {
   const BottomNavPage({Key? key}) : super(key: key);
@@ -15,14 +17,15 @@ class BottomNavPage extends StatefulWidget {
 class _BottomNavPageState extends State<BottomNavPage> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = const [
-    HomeScreen(),
-    // ServiciosScreen(),
-    // CarritoScreen(),
-     PerfilScreen(),
-    Center(child: Text("Servicios próximamente")),
-    Center(child: Text("Carrito próximamente")),
-    Center(child: Text("Perfil próximamente")),
+    //  ServiciosScreen(),
+    //  CarritoScreen(),
+  final List<Widget> _pages = [
+    const HomeScreen(),
+    ServiciosScreen(),
+    CarritoScreen(),
+    //const Center(child: Text("Servicios próximamente")),
+    //const Center(child: Text("Carrito próximamente")),
+    PerfilScreen(),
   ];
 
   final List<String> _titles = const [
