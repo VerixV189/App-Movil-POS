@@ -1,25 +1,27 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/models/AuthRegisterResponseDTO.dart';
 import 'package:test/models/AuthUserResponseDTO.dart';
-import 'package:test/services/utils.dart';
+import 'package:test/providers/UserProvider.dart';
+import 'package:test/services/API/server_url.dart';
+import 'package:test/services/JWT/storage.dart';
+import 'package:test/services/Utils/utils.dart';
 
 class AuthService {
-  static const String API_URL = "http://192.168.100.4:8000/api"; // Reemplaza con la URL de tu backend
- // static const String API_URL = "http://192.168.100.4:3000/api";
-  static const String TOKEN = "token";
   // static const String api_url = "https://backend-tms-qh89.onrender.com/api";
 
   static Future<AuthUserResponseDTO> login(
+    BuildContext context,
     String email,
     String password,
   ) async {
     print(email);
     print(password);
-
     final response = await http.post(
-      Uri.parse('$API_URL/auth/login'),
+      Uri.parse('${Server.API_URL}/auth/login'),
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
@@ -28,11 +30,15 @@ class AuthService {
     );
 
     final data = await Utils.handleResponse(response);
+
     AuthUserResponseDTO dtoUser = AuthUserResponseDTO.fromJson(data);
+
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    userProvider.setUsuario(dtoUser.usuario);
     print(dtoUser.message);
     print(dtoUser.usuario);
     print(dtoUser.token);
-    storeToken(dtoUser.token);
+    Storage.storeToken(dtoUser.token);
     return dtoUser;
   }
 
@@ -46,7 +52,7 @@ class AuthService {
     print(password);
     print(nombre);
     final response = await http.post(
-      Uri.parse('$API_URL/auth/registrar'),
+      Uri.parse('${Server.API_URL}/auth/registrar'),
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
@@ -59,31 +65,27 @@ class AuthService {
     );
 
     final data = await Utils.handleResponse(response);
-    AuthUserRegisterResponseDTO authUserdto = AuthUserRegisterResponseDTO.fromJson(data);
+    AuthUserRegisterResponseDTO authUserdto =
+        AuthUserRegisterResponseDTO.fromJson(data);
 
     return authUserdto;
   }
 
-  static Future<void> storeToken(String token) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString(TOKEN, token); // Guarda el token en shared_preferences
-  }
+  static Future<bool> verifyToken(String token) async {
+    
+      final response = await http.get(
+        Uri.parse('${Server.API_URL}/auth/me'),
+        headers: {
+          "Authorization":"Bearer $token"
+        },
+      );
 
-  // Método para obtener el token
-  static Future<String?> getToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString(TOKEN);
-  }
-
-  static Future<void> revokeToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.remove(TOKEN);
-  }
-}
-
-class Response {
-  static bool ok(int code) {
-    return code == 200 || code == 201;
+      if (Response.ok(response.statusCode)) {
+        return true;
+      }
+      
+      return false;
+    
   }
 }
 

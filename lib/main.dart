@@ -239,42 +239,93 @@
 //   ),
 // ];
 
-
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:test/auth/login_screen.dart';
 import 'package:test/auth/register_screen.dart';
 import 'package:test/auth/welcome_screen.dart';
 import 'package:test/providers/LoadingProvider.dart';
+import 'package:test/providers/UserProvider.dart';
+import 'package:test/services/JWT/storage.dart';
+import 'package:test/services/auth_service.dart';
 import 'package:test/widgets/botton_bart.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final token = await Storage.getToken();
+
+  bool esTokenValido = false;
+  if (token != null) {
+    esTokenValido = await AuthService.verifyToken(token);
+  }
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => LoadingProvider(), // Proveedor del estado de carga
-      child: MyApp(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => LoadingProvider()),
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+      ],
+      child: MyApp(initialRoute: esTokenValido ? '/home' : '/'),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
+  final String initialRoute;
+
+  const MyApp({super.key, required this.initialRoute});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',
+      initialRoute: initialRoute,
       routes: {
-        //'/': (context) => WelcomePage(),
-        '/': (context) => BottomNavPage(),
+        '/': (context) => WelcomePage(),
         '/login': (context) => LoginPageYT(),
         '/signup': (context) => SignupPageYT(),
-        '/home':
-            (context) => BottomNavPage(), // Pantalla principal después de login
+        '/home': (context) => BottomNavPage(),
       },
     );
   }
 }
+
+
+
+//version anterior 
+// import 'package:flutter/material.dart';
+// import 'package:provider/provider.dart';
+// import 'package:test/auth/login_screen.dart';
+// import 'package:test/auth/register_screen.dart';
+// import 'package:test/auth/welcome_screen.dart';
+// import 'package:test/providers/LoadingProvider.dart';
+// import 'package:test/widgets/botton_bart.dart';
+
+// void main() {
+//   runApp(
+//     ChangeNotifierProvider(
+//       create: (context) => LoadingProvider(), // Proveedor del estado de carga
+//       child: MyApp(),
+//     ),
+//   );
+// }
+
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       initialRoute: '/',
+//       routes: {
+//         '/': (context) => WelcomePage(),
+//         //'/': (context) => BottomNavPage(),
+//         '/login': (context) => LoginPageYT(),
+//         '/signup': (context) => SignupPageYT(),
+//         '/home':
+//             (context) => BottomNavPage(), // Pantalla principal después de login
+//       },
+//     );
+//   }
+// }
 //version funcional
 // import 'package:flutter/material.dart';
 // import 'package:test/auth/home_screen.dart';

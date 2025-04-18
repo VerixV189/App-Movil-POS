@@ -48,6 +48,7 @@ class LoginPageYTState extends State<LoginPageYT> {
       try {
         // Realizamos el login con las credenciales introducidas
         final loginResponseDTO = await AuthService.login(
+          context,
           emailController.text,
           passwordController.text,
         );

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:test/services/auth_service.dart';
+
+
 class Utils {
   static Future<Map<String, dynamic>> handleResponse(
     http.Response response,
@@ -20,4 +21,13 @@ class Utils {
     print("Data recibida: ${json.encode(data)}");
     return data; // Retorna los datos si la respuesta fue exitosa
   }
+  
+
 }
+
+class Response {
+  static bool ok(int code) {
+    return code == 200 || code == 201;
+  }
+}
+
