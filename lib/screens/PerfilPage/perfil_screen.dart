@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:test/models/BackendExceptionDTO.dart';
 import 'package:test/providers/UserProvider.dart';
 import 'package:test/screens/PerfilPage/change_password.dart';
 import 'package:test/screens/PerfilPage/change_profile_photo.dart';
 import 'package:test/services/API/server_url.dart';
+import 'package:test/services/auth_service.dart';
+import 'package:test/services/usuario_service.dart';
 
 class PerfilScreen extends StatelessWidget {
   const PerfilScreen({super.key});
@@ -122,7 +125,8 @@ class PerfilScreen extends StatelessWidget {
   }
 }
 
-class EditUserDialog extends StatelessWidget {
+
+class EditUserDialog extends StatefulWidget {
   final String name;
   final String username;
   final String email;
@@ -135,29 +139,113 @@ class EditUserDialog extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final nameController = TextEditingController(text: name);
-    final usernameController = TextEditingController(text: username);
-    final emailController = TextEditingController(text: email);
+  State<EditUserDialog> createState() => _EditUserDialogState();
+}
 
+class _EditUserDialogState extends State<EditUserDialog> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _nameController;
+  late final TextEditingController _usernameController;
+  late final TextEditingController _emailController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.name);
+    _usernameController = TextEditingController(text: widget.username);
+    _emailController = TextEditingController(text: widget.email);
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _usernameController.dispose();
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _guardarCambios() async {
+    if (_formKey.currentState!.validate()) {
+      // Simulamos un DTO
+      final data = {
+        "nombre": _nameController.text,
+        "username": _usernameController.text,
+        "email": _emailController.text,
+      };
+
+      try {
+        // Llama al backend para actualizar
+        final actualizado = await UsuarioService.actualizarDatosPersonales(data);
+
+        // Actualiza el usuario en Provider
+        final userProvider = Provider.of<UserProvider>(context, listen: false);
+        userProvider.setUsuario(actualizado);
+
+        if (context.mounted) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Perfil actualizado correctamente")),
+          );
+        }
+      } on BackendException catch (e) {
+        // Captura los errores de tu backend específicamente
+        if (context.mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(e.message)));
+        }
+      } catch (e) {
+        // Captura errores generales o inesperados
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Error inesperado al editar los datos del perfil"),
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text("Editar Información"),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: nameController,
-            decoration: const InputDecoration(labelText: 'Nombre'),
-          ),
-          TextField(
-            controller: usernameController,
-            decoration: const InputDecoration(labelText: 'Username'),
-          ),
-          TextField(
-            controller: emailController,
-            decoration: const InputDecoration(labelText: 'Email'),
-          ),
-        ],
+      content: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextFormField(
+              controller: _nameController,
+              decoration: const InputDecoration(labelText: 'Nombre'),
+              validator:
+                  (value) =>
+                      value == null || value.trim().isEmpty
+                          ? 'Campo obligatorio'
+                          : null,
+            ),
+            TextFormField(
+              controller: _usernameController,
+              decoration: const InputDecoration(labelText: 'Username'),
+              validator:
+                  (value) =>
+                      value == null || value.trim().isEmpty
+                          ? 'Campo obligatorio'
+                          : null,
+            ),
+            TextFormField(
+              controller: _emailController,
+              decoration: const InputDecoration(labelText: 'Email'),
+              keyboardType: TextInputType.emailAddress,
+              validator:
+                  (value) =>
+                      value == null || !value.contains('@')
+                          ? 'Email inválido'
+                          : null,
+            ),
+          ],
+        ),
       ),
       actions: [
         TextButton(
@@ -165,10 +253,7 @@ class EditUserDialog extends StatelessWidget {
           child: const Text("Cancelar"),
         ),
         ElevatedButton(
-          onPressed: () {
-            // Guardar los cambios
-            Navigator.pop(context);
-          },
+          onPressed: _guardarCambios,
           child: const Text("Guardar"),
         ),
       ],

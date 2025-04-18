@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:test/models/BackendExceptionDTO.dart';
 
 
 class Utils {
@@ -11,11 +12,11 @@ class Utils {
 
     // Si la respuesta no es 2xx, lanza una excepción con los detalles
     if (!Response.ok(response.statusCode)) {
-      throw {
-        "message": data["message"] ?? "Error en la solicitud",
-        "error": data["error"] ?? "Código Desconocido",
-        "fecha": data["fecha"] ?? DateTime.now().toIso8601String(),
-      };
+      throw BackendException(
+        message: data["message"] ?? "Error en la solicitud",
+        error: data["error"] ?? "Código Desconocido",
+        fecha: data["fecha"] ?? DateTime.now().toIso8601String(),
+      );
     }
 
     print("Data recibida: ${json.encode(data)}");
