@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:test/screens/HomePage/ImageModalViewer.dart';
 import 'package:test/widgets/reviews/add_comment_modal.dart';
+import 'package:test/widgets/reviews/product_detail_modal.dart';
 import 'package:test/widgets/reviews/rating_summary.dart';
 
 class ProductDetailPage extends StatelessWidget {
@@ -112,25 +114,34 @@ class ProductDetailPage extends StatelessWidget {
                   itemCount: images.length,
                   itemBuilder: (context, index) {
                     final imageUrl = images[index];
-                    return AspectRatio(
-                      aspectRatio: 1,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          imageUrl,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Center(
-                              child: Icon(Icons.broken_image),
-                            );
-                          },
+
+                    return GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (_) => ImageModalViewer(imageUrl: imageUrl),
+                        );
+                      },
+                      child: AspectRatio(
+                        aspectRatio: 1,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Center(
+                                child: Icon(Icons.broken_image),
+                              );
+                            },
+                          ),
                         ),
                       ),
                     );
@@ -138,6 +149,8 @@ class ProductDetailPage extends StatelessWidget {
                 ),
               ),
             ),
+
+            
 
             const SizedBox(height: 20),
             Text(

@@ -1,12 +1,35 @@
 import 'package:flutter/material.dart';
 
 class ProductDetailModal extends StatelessWidget {
-  final Map<String, dynamic> product;
+  final Map<String, dynamic>? product;
+  final String? imageUrl;
+  final String modo; // 'detalle' o 'imagen'
 
-  const ProductDetailModal({super.key, required this.product});
+  const ProductDetailModal({
+    super.key,
+    this.product,
+    this.imageUrl,
+    this.modo = 'detalle',
+  });
 
   @override
   Widget build(BuildContext context) {
+    if (modo == 'imagen' && imageUrl != null) {
+      // Modal para imagen sola (estilo lightbox)
+      return Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(10),
+        child: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.network(imageUrl!, fit: BoxFit.contain),
+          ),
+        ),
+      );
+    }
+
+    // Modal completo con detalles de producto
     return FractionallySizedBox(
       heightFactor: 0.85,
       child: Container(
@@ -30,18 +53,18 @@ class ProductDetailModal extends StatelessWidget {
               ),
             ),
             Text(
-              product['name'] ?? 'Nombre del producto',
+              product?['name'] ?? 'Nombre del producto',
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             Text(
-              "\$${product['price'] ?? '--'}",
+              "\$${product?['price'] ?? '--'}",
               style: const TextStyle(fontSize: 18, color: Colors.cyan),
             ),
             const SizedBox(height: 16),
             Expanded(
               child: SingleChildScrollView(
                 child: Text(
-                  product['description'] ?? "No hay descripción disponible",
+                  product?['description'] ?? "No hay descripción disponible",
                   textAlign: TextAlign.justify,
                 ),
               ),

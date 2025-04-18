@@ -19,7 +19,7 @@ class _BottomNavPageState extends State<BottomNavPage> {
     HomeScreen(),
     // ServiciosScreen(),
     // CarritoScreen(),
-    // PerfilScreen(),
+     PerfilScreen(),
     Center(child: Text("Servicios próximamente")),
     Center(child: Text("Carrito próximamente")),
     Center(child: Text("Perfil próximamente")),
