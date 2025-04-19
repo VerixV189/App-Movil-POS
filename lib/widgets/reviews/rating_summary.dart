@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:test/widgets/reviews/rating_bar.dart';
 
-
 // el resumen de validaciones  de 5 estrellas cuantas son buenas y asi, un PA para las valoraciones
 class RatingSummary extends StatelessWidget {
   final double averageRating;
   final int totalRatings;
-  final Map<int, int> ratingDistribution; // {5: 1200, 4: 200, ...}
+  final Map<String, int> ratingDistribution; // {5: 1200, 4: 200, ...}
 
   const RatingSummary({
     Key? key,
@@ -58,9 +57,11 @@ class RatingSummary extends StatelessWidget {
             // Sección de barras
             Expanded(
               child: Column(
-                children: List.generate(5, (index) {
+                children: List.generate(6, (index) {
                   int stars = 5 - index;
-                  int count = ratingDistribution[stars] ?? 0;
+                  print('estrella $stars');
+                  print(ratingDistribution);
+                  int count = ratingDistribution["$stars"] ?? 0;
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 2),
                     child: RatingBar(

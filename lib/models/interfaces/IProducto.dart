@@ -9,6 +9,7 @@ class Producto {
   final Caracteristica caracteristica;
   final List<Comentario> comentarios;
   final List<Imagen> imagenes;
+  final Map<String, int> estadisticas;
   final String descripcion;
   final String estado;
   final double media_puntaje;
@@ -20,13 +21,14 @@ class Producto {
     required this.id,
     required this.modelo,
     required this.descripcion,
+    required this.estadisticas,
     required this.media_puntaje,
     required this.estado,
     required this.precio,
     required this.tiempo_garantia,
     required this.caracteristica,
     required this.comentarios,
-    required this.imagenes
+    required this.imagenes,
   });
 
   factory Producto.fromJson(Map<String, dynamic> json) {
@@ -39,7 +41,7 @@ class Producto {
       precio: json['precio'],
       tiempo_garantia: json['tiempo_garantia'],
       caracteristica: Caracteristica.fromJson(json['caracteristica']),
-     comentarios:
+      comentarios:
           (json['comentarios'] ?? [])
               .map<Comentario>((e) => Comentario.fromJson(e))
               .toList(),
@@ -47,6 +49,7 @@ class Producto {
           (json['imagenes'] ?? [])
               .map<Imagen>((e) => Imagen.fromJson(e))
               .toList(),
+      estadisticas: Map<String, int>.from(json['estadisticas'] ?? {}),
     );
   }
 
@@ -61,7 +64,8 @@ class Producto {
       'tiempo_garantia': tiempo_garantia,
       'caracteristica': caracteristica.toJson(),
       'comentarios': comentarios.map((e) => e.toJson()).toList(),
-      'imagenes': imagenes.map((e) => e.toJson()).toList()
+      'imagenes': imagenes.map((e) => e.toJson()).toList(),
+      'estadisticas': estadisticas,
     };
   }
 }

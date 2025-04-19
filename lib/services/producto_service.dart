@@ -55,6 +55,8 @@ class ProductoService {
 
     // Suponiendo que `data` es una lista de mapas:
     final data = await Utils.handleResponse(response);
-    return Producto.fromJson(data["producto"]);
+    final productoData = Map<String, dynamic>.from(data["producto"]);
+    productoData["estadisticas"] = data["estadisticas"] ?? {};
+    return Producto.fromJson(productoData);
   }
 }
