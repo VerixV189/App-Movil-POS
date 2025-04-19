@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:test/models/ProductoMostradorDTO.dart';
-import 'package:test/models/interfaces/ICategoria.dart';
+import 'package:test/models/interfaces/IProducto.dart';
 import 'package:test/services/API/server_url.dart';
 import 'package:test/services/JWT/storage.dart';
 import 'package:http/http.dart' as http;
@@ -21,11 +21,13 @@ class ProductoService {
     //en json puro
 
     // Suponiendo que `data` es una lista de mapas:
-    final List<dynamic> data = json.decode(response.body);
+    final List<dynamic> data = await Utils.handleListResponse(response);
     return data.map((json) => ProductoMostradorDTO.fromJson(json)).toList();
   }
 
-  static Future<List<ProductoMostradorDTO>> getProductsByCategoryId(int id) async {
+  static Future<List<ProductoMostradorDTO>> getProductsByCategoryId(
+    int id,
+  ) async {
     final token = await Storage.getToken();
     final response = await http.get(
       Uri.parse('${Server.API_URL}/productos/categoria/$id/list'),
@@ -37,8 +39,22 @@ class ProductoService {
 
     //en json puro
 
-    // Suponiendo que `data` es una lista de mapas:
-    final List<dynamic> data = json.decode(response.body);
+    final List<dynamic> data = await Utils.handleListResponse(response);
     return data.map((json) => ProductoMostradorDTO.fromJson(json)).toList();
+  }
+
+  static Future<Producto> getProductoCompleto(int id) async {
+    final token = await Storage.getToken();
+    final response = await http.get(
+      Uri.parse('${Server.API_URL}/productos/$id/get-all-data'),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
+
+    // Suponiendo que `data` es una lista de mapas:
+    final data = await Utils.handleResponse(response);
+    return Producto.fromJson(data["producto"]);
   }
 }

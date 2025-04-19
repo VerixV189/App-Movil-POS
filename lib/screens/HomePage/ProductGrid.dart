@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:test/auth/home_screen.dart';
 import 'package:test/providers/ProductoProvider.dart';
 import 'package:test/screens/HomePage/ProductDetailPage.dart';
 import 'package:test/services/API/server_url.dart';
@@ -34,7 +35,7 @@ class ProductGrid extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => ProductDetailPage(product: product.toJson()),
+                  builder: (_) => ProductDetailPage(productId: product.id),
                 ),
               );
             },
