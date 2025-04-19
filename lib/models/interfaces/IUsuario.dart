@@ -8,7 +8,7 @@ class Usuario {
   final String? url_profile;
   final String? fecha_creacion;
   final String? fecha_actualizacion;
-  final Rol rol;
+  final Rol? rol;
 
   Usuario({
     required this.id,
@@ -31,7 +31,11 @@ class Usuario {
       url_profile: json['url_profile'],
       fecha_creacion: json['fecha_creacion'],
       fecha_actualizacion: json['fecha_actualizacion'],
-      rol: Rol.fromJson(json['rol'])//debe serializar el json como el schema indicamos que serializar
+      // rol: Rol.fromJson(json['rol'])//debe serializar el json como el schema indicamos que serializar
+      rol:
+          json['rol'] != null && json['rol'] is Map<String, dynamic>
+              ? Rol.fromJson(json['rol'])
+              : Rol(id: 0, nombre: 'Desconocido'),
     );
   }
 
@@ -43,6 +47,6 @@ class Usuario {
       'email': email,
        'username': username,
        'url_profile':url_profile
-       ,'rol':rol,'fecha_creacion':fecha_creacion,'fecha_actualizacion':fecha_actualizacion};
+       ,'rol':rol?.toJson(),'fecha_creacion':fecha_creacion,'fecha_actualizacion':fecha_actualizacion};
   }
 }

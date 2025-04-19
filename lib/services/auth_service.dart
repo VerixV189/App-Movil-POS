@@ -74,6 +74,20 @@ class AuthService {
     return authUserdto;
   }
 
+  //logout
+  static Future<void> logout() async {
+    final token = await Storage.getToken();
+    final response = await http.post(
+      Uri.parse('${Server.API_URL}/auth/logout'),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
+    Utils.handleResponse(response);//para hacer la validacion si todo fue correcto
+    await Storage.revokeToken(); // Elimina el token local
+  }
+
   //solo para verificar el token
   static Future<bool> verifyToken(String token) async {
     final response = await http.get(
@@ -96,8 +110,7 @@ class AuthService {
 
     final data = await Utils.handleResponse(response);
 
-     Usuario authUserdto =
-        Usuario.fromJson(data['usuario']);
+    Usuario authUserdto = Usuario.fromJson(data['usuario']);
     return authUserdto;
   }
 }

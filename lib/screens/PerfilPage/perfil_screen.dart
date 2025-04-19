@@ -4,6 +4,7 @@ import 'package:test/models/BackendExceptionDTO.dart';
 import 'package:test/providers/UserProvider.dart';
 import 'package:test/screens/PerfilPage/change_password.dart';
 import 'package:test/screens/PerfilPage/change_profile_photo.dart';
+import 'package:test/screens/PerfilPage/logout_buttom.dart';
 import 'package:test/services/API/server_url.dart';
 import 'package:test/services/auth_service.dart';
 import 'package:test/services/usuario_service.dart';
@@ -14,7 +15,6 @@ class PerfilScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final usuario = Provider.of<UserProvider>(context).usuario;
-    print("Usuario actual: ${usuario}");
     if (usuario == null) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -36,7 +36,7 @@ class PerfilScreen extends StatelessWidget {
                         ? NetworkImage(
                           '${Server.CLOUDINARY_URL}/${usuario.url_profile!}',
                         )
-                        : const NetworkImage('https://i.imgur.com/N5uCbDu.png'),
+                        : const NetworkImage('https://cdn.vectorstock.com/i/500p/20/76/man-avatar-profile-vector-21372076.jpg'),
               ),
               const SizedBox(height: 12),
               Text(
@@ -48,7 +48,7 @@ class PerfilScreen extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                usuario.rol.nombre ?? 'Rol desconocido',
+                usuario.rol?.nombre ?? 'Rol desconocido',
                 style: const TextStyle(color: Colors.grey),
               ),
             ],
@@ -83,7 +83,7 @@ class PerfilScreen extends StatelessWidget {
                   Text("Nombre: ${usuario.nombre}"),
                   Text("Username: ${usuario.username}"),
                   Text("Email: ${usuario.email}"),
-                  Text("Rol: ${usuario.rol.nombre ?? 'No definido'}"),
+                  Text("Rol: ${usuario.rol?.nombre ?? 'No definido'}"),
                 ],
               ),
             ),
@@ -101,6 +101,8 @@ class PerfilScreen extends StatelessWidget {
             icon: const Icon(Icons.lock_reset),
             label: const Text("Cambiar Contraseña"),
             style: ElevatedButton.styleFrom(
+               backgroundColor: const Color.fromARGB(255, 76, 175, 175), // Fondo
+              foregroundColor: Colors.white,  
               minimumSize: const Size.fromHeight(50),
             ),
           ),
@@ -115,8 +117,27 @@ class PerfilScreen extends StatelessWidget {
             icon: const Icon(Icons.image),
             label: const Text("Cambiar Foto de Perfil"),
             style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.cyan, // Color de fondo
+              foregroundColor: Colors.white, // Color de texto e ícono
               minimumSize: const Size.fromHeight(50),
             ),
+          ),
+          const SizedBox(height: 13),
+          //para el logout
+          ElevatedButton.icon(
+            icon: const Icon(Icons.logout),
+            label: const Text("Cerrar Sesión"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+              minimumSize: const Size.fromHeight(50),
+            ),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (_) => const LogoutDialog(),
+              );
+            },
           ),
 
         ],
@@ -165,12 +186,15 @@ class _EditUserDialogState extends State<EditUserDialog> {
   }
 
   Future<void> _guardarCambios() async {
+    
+
     if (_formKey.currentState!.validate()) {
       // Simulamos un DTO
       final data = {
         "nombre": _nameController.text,
         "username": _usernameController.text,
         "email": _emailController.text,
+        // "rol_id": rolId
       };
 
       try {

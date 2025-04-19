@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:test/auth/login_screen.dart';
 import 'package:test/auth/register_screen.dart';
 import 'package:test/auth/welcome_screen.dart';
+import 'package:test/models/BackendExceptionDTO.dart';
 import 'package:test/models/interfaces/IUsuario.dart';
 import 'package:test/providers/LoadingProvider.dart';
 import 'package:test/providers/UserProvider.dart';
@@ -18,10 +19,17 @@ void main() async {
   Usuario? usuario;
 
   if (token != null) {
-    esTokenValido = await AuthService.verifyToken(token);
-
-    if (esTokenValido) {
-      usuario = await AuthService.getUserToken(token); // obtenés el usuari
+    try {
+      esTokenValido = await AuthService.verifyToken(token);
+      if (esTokenValido) {
+        usuario = await AuthService.getUserToken(token); // obtenés el usuari
+      }
+    } on BackendException catch (e) {
+      esTokenValido = false;
+      print("error en la conexion con el backend ${e.message}");
+    } catch (e) {
+      esTokenValido = false;
+      print("error en la conexion con el backend");
     }
   }
 
