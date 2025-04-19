@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:test/screens/CarritoPage/carrito_screen.dart';
+import 'package:test/screens/HomePage/search_header.dart';
 import 'package:test/screens/PerfilPage/perfil_screen.dart';
 import 'package:test/widgets/custom_header.dart';
 import 'package:test/screens/HomePage/home_screen.dart';
@@ -42,7 +43,14 @@ class _BottomNavPageState extends State<BottomNavPage> {
     return PopScope(
       canPop: true,
       child: Scaffold(
-        appBar: CustomHeader(title: _titles[_selectedIndex]),
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child:
+              _selectedIndex == 0
+                  ? const SearchHeader() // <-- Tu nuevo header solo en Inicio
+                  : CustomHeader(title: _titles[_selectedIndex]),
+        ),
+
         body: IndexedStack(index: _selectedIndex, children: _pages),
         bottomNavigationBar: NavigationBar(
           selectedIndex: _selectedIndex,
@@ -52,7 +60,7 @@ class _BottomNavPageState extends State<BottomNavPage> {
             });
           },
           height: 70,
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
           backgroundColor: Colors.white,
           indicatorColor: Colors.cyan.shade100,
           destinations: const [

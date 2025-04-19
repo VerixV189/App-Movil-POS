@@ -5,7 +5,9 @@ import 'package:test/auth/register_screen.dart';
 import 'package:test/auth/welcome_screen.dart';
 import 'package:test/models/BackendExceptionDTO.dart';
 import 'package:test/models/interfaces/IUsuario.dart';
+import 'package:test/providers/CategoriaProvider.dart';
 import 'package:test/providers/LoadingProvider.dart';
+import 'package:test/providers/ProductoProvider.dart';
 import 'package:test/providers/UserProvider.dart';
 import 'package:test/services/JWT/storage.dart';
 import 'package:test/services/auth_service.dart';
@@ -37,12 +39,14 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => LoadingProvider()),
+        ChangeNotifierProvider(create: (_) => CategoriaSeleccionadaProvider()),
+        ChangeNotifierProvider(create: (_) => ProductProvider()),
         ChangeNotifierProvider(
           create: (_) {
             final userProvider = UserProvider();
             if (usuario != null) {
               print('usuario autenticado en el main $usuario');
-              userProvider.setUsuario(usuario!); // 👈 lo inyectás al Provider
+              userProvider.setUsuario(usuario!); // lo inyectás al Provider
             } else {
               print("no existe un usuario autenticado pelau");
             }
