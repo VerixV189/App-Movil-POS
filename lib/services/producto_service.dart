@@ -59,11 +59,31 @@ class ProductoService {
       final productoData = Map<String, dynamic>.from(data["producto"]);
       productoData["estadisticas"] = data["estadisticas"] ?? {};
       return Producto.fromJson(productoData);
-
     } catch (e, stack) {
       print("❌ Error en getProductoCompleto: $e");
       print("📌 Stacktrace: $stack");
       rethrow;
     }
+  }
+
+  //para la recomendacion inteligente
+
+  static Future<List<ProductoMostradorDTO>> getProductosInteligentes({
+    required int id,
+    required String nombre,
+  }) async {
+    print(id);
+    print(nombre);
+    final token = await Storage.getToken();
+    final response = await http.post(
+      Uri.parse('${Server.API_URL}/productos/$id/testingDeep'),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+      body: jsonEncode({"nombre": nombre}),
+    );
+    final List<dynamic> data = await Utils.handleListResponse(response);
+    return data.map((json) => ProductoMostradorDTO.fromJson(json)).toList();
   }
 }

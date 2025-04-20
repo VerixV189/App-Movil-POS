@@ -6,6 +6,7 @@ import 'package:test/models/interfaces/IProducto.dart';
 import 'package:test/providers/CarritoProvider.dart';
 import 'package:test/providers/UserProvider.dart';
 import 'package:test/screens/HomePage/ImageModalViewer.dart';
+import 'package:test/screens/HomePage/product_recommendation.dart';
 import 'package:test/services/API/server_url.dart';
 import 'package:test/services/carritoService.dart';
 import 'package:test/services/comentarioService.dart';
@@ -148,6 +149,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     }
   }
 
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Producto>(
@@ -268,6 +273,19 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 ),
                 const SizedBox(height: 8),
                 ..._buildCaracteristicas(producto.caracteristica),
+
+//seccion para el carrusel
+
+                const SizedBox(height: 8),
+                // 👇 Aquí insertas el carrusel
+                ProductRecommendationCarousel(
+                  idProducto: producto.id,
+                  categoria:producto.modelo.categoria!.nombre
+                ),
+
+
+
+
                 const SizedBox(height: 24),
                 const Text(
                   "Comentarios",
