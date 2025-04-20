@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:test/services/API/server_url.dart';
 
 //para el card del comentario
 class CommentCard extends StatelessWidget {
@@ -6,8 +7,10 @@ class CommentCard extends StatelessWidget {
   final String date;
   final String content;
   final int stars;
+  final String? urlProfile; // Nueva imagen de perfil
   final bool isCurrentUser;
-
+  final void Function()? onEdit;
+  final void Function()? onDelete;
   const CommentCard({
     Key? key,
     required this.username,
@@ -15,6 +18,9 @@ class CommentCard extends StatelessWidget {
     required this.content,
     required this.stars,
     required this.isCurrentUser,
+    this.onEdit,
+    this.onDelete,
+    this.urlProfile,
   }) : super(key: key);
 
   @override
@@ -23,14 +29,31 @@ class CommentCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 6),
       elevation: 2,
       child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: isCurrentUser ? Colors.cyan : Colors.grey.shade400,
-          child: Text(username[0].toUpperCase()),
+        // leading: CircleAvatar(
+        //   backgroundColor: isCurrentUser ? const Color.fromRGBO(0, 188, 212, 1) : Colors.grey.shade400,
+        //   child: Text(username[0].toUpperCase()),
+        // ),
+       leading: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          backgroundImage:
+              urlProfile != null
+                  ? NetworkImage(
+                    '${Server.CLOUDINARY_URL}/${urlProfile!}',
+                  )
+                  : const AssetImage('assets/default_profile.jpg')
+                      ,
         ),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(username),
+            Expanded(
+              child: Text(
+                username,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
+            const SizedBox(width: 8), // espaciado mínimo
             Text(
               date,
               style: const TextStyle(fontSize: 12, color: Colors.grey),
@@ -58,10 +81,11 @@ class CommentCard extends StatelessWidget {
             isCurrentUser
                 ? PopupMenuButton<String>(
                   onSelected: (value) {
-                    // Aquí luego va la lógica de editar o eliminar
+                    if (value == 'edit') onEdit?.call();
+                    if (value == 'delete') onDelete?.call();
                   },
                   itemBuilder:
-                      (context) => const [
+                      (_) => const [
                         PopupMenuItem(value: 'edit', child: Text('Editar')),
                         PopupMenuItem(value: 'delete', child: Text('Eliminar')),
                       ],
@@ -70,4 +94,7 @@ class CommentCard extends StatelessWidget {
       ),
     );
   }
+
+
+
 }

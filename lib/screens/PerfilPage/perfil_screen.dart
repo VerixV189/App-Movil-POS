@@ -36,7 +36,8 @@ class PerfilScreen extends StatelessWidget {
                         ? NetworkImage(
                           '${Server.CLOUDINARY_URL}/${usuario.url_profile!}',
                         )
-                        : const NetworkImage('https://cdn.vectorstock.com/i/500p/20/76/man-avatar-profile-vector-21372076.jpg'),
+                        : const AssetImage('assets/default_profile.jpg')
+                            
               ),
               const SizedBox(height: 12),
               Text(

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:test/models/BackendExceptionDTO.dart';
 import 'package:test/models/interfaces/IComentario.dart';
 import 'package:test/models/interfaces/IProducto.dart';
+import 'package:test/providers/UserProvider.dart';
 import 'package:test/screens/HomePage/ImageModalViewer.dart';
 import 'package:test/services/API/server_url.dart';
+import 'package:test/services/comentarioService.dart';
 import 'package:test/services/producto_service.dart';
 import 'package:test/widgets/reviews/add_comment_modal.dart';
 import 'package:test/widgets/reviews/comment_card.dart';
@@ -29,6 +33,91 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   void _loadProducto() {
     _productoFuture = ProductoService.getProductoCompleto(widget.productId);
+  }
+
+
+  //para cuando se agrega comentarios o se editar o se elimina
+  void _refreshProducto() async {
+    final productoActualizado = await ProductoService.getProductoCompleto(
+      widget.productId,
+    );
+
+    setState(() {
+      _productoFuture = Future.value(productoActualizado);
+    });
+  }
+
+
+  //METODOS PARA EDITAR Y ELIMINAR EL COMENTARIO
+  void _showEditModal(Comentario comentario) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return AddCommentModal(
+          initialComment: comentario.descripcion,
+          initialStars: comentario.puntuacion,
+          onSubmit: (stars, text) async {
+            await ComentarioService.editarComentario(
+              comentarioId: comentario.id,
+              puntuacion: stars,
+              descripcion: text,
+            );
+            _refreshProducto(); // recarga
+          },
+        );
+      },
+    );
+  }
+
+  void _confirmDelete(int idComentario) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: const Text("Eliminar comentario"),
+            content: const Text(
+              "¿Estás seguro de que deseas eliminar este comentario?",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text("Cancelar"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text("Eliminar"),
+              ),
+            ],
+          ),
+    );
+
+    if (confirm == true) {
+      await ComentarioService.eliminarComentario(idComentario);
+      _refreshProducto();
+    }
+  }
+
+  Future<void> _agregarComentario(int estrellas, String comentario) async {
+    try {
+      await ComentarioService.crearComentario(
+        productoId: widget.productId,
+        puntuacion: estrellas,
+        descripcion: comentario,
+      );
+      // Navigator.pop(context); // Cierra el modal, ya lo hace el metodo del modal
+      _refreshProducto(); // Refresca la vista 
+    } on BackendException catch (e) {
+      print("error ocurrio algunos errores al agregar el comentario ${e.message}");
+    } catch (e) {
+      print("❌ Error al crear comentario: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Error al enviar el comentario")),
+      );
+    }
   }
 
   @override
@@ -187,10 +276,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           ),
                           builder: (context) {
                             return AddCommentModal(
-                              onSubmit: (stars, comment) {
-                                print("Comentario: \$comment");
-                                print("Estrellas: \$stars");
-                              },
+                              // enviar comentario
+                              
+                              onSubmit: (stars,comment) => _agregarComentario(stars, comment),
+                              
                             );
                           },
                         );
@@ -228,13 +317,18 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget _buildCommentTile(Comentario comentario) {
+    final authenticatedUser = Provider.of<UserProvider>(context, listen: false);
+    
+    final isCurrentUser = authenticatedUser.usuario?.id == comentario.usuario.id;
     return CommentCard(
       username: comentario.usuario.username,
       date: '${comentario.fecha} - ${comentario.hora}',
       content: comentario.descripcion,
       stars: comentario.puntuacion,
-      isCurrentUser:
-          false, // o lógica para verificar si es el usuario autenticado
+      isCurrentUser: isCurrentUser,
+      urlProfile: comentario.usuario.url_profile,
+      onEdit: isCurrentUser ? () => _showEditModal(comentario) : null,
+      onDelete: isCurrentUser ? () => _confirmDelete(comentario.id) : null,
     );
   }
 }

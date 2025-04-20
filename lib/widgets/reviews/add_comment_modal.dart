@@ -3,15 +3,41 @@ import 'package:flutter/material.dart';
 class AddCommentModal extends StatefulWidget {
   final void Function(int stars, String comment) onSubmit;
 
-  const AddCommentModal({Key? key, required this.onSubmit}) : super(key: key);
+  //para edicion
+  final String? initialComment;
+  final int? initialStars;
+
+  
+  const AddCommentModal({
+    Key? key,
+    required this.onSubmit,
+    this.initialComment,
+    this.initialStars,
+  }) : super(key: key);
 
   @override
   State<AddCommentModal> createState() => _AddCommentModalState();
 }
 
 class _AddCommentModalState extends State<AddCommentModal> {
-  int _selectedStars = 5;
-  final TextEditingController _controller = TextEditingController();
+  // int _selectedStars = 5;
+  //final TextEditingController _controller = TextEditingController();
+
+  late int _selectedStars;
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedStars = widget.initialStars ?? 5;
+    _controller = TextEditingController(text: widget.initialComment ?? '');
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

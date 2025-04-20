@@ -44,19 +44,26 @@ class ProductoService {
   }
 
   static Future<Producto> getProductoCompleto(int id) async {
-    final token = await Storage.getToken();
-    final response = await http.get(
-      Uri.parse('${Server.API_URL}/productos/$id/get-all-data'),
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $token",
-      },
-    );
+    try {
+      final token = await Storage.getToken();
+      final response = await http.get(
+        Uri.parse('${Server.API_URL}/productos/$id/get-all-data'),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+      );
 
-    // Suponiendo que `data` es una lista de mapas:
-    final data = await Utils.handleResponse(response);
-    final productoData = Map<String, dynamic>.from(data["producto"]);
-    productoData["estadisticas"] = data["estadisticas"] ?? {};
-    return Producto.fromJson(productoData);
+      // Suponiendo que `data` es una lista de mapas:
+      final data = await Utils.handleResponse(response);
+      final productoData = Map<String, dynamic>.from(data["producto"]);
+      productoData["estadisticas"] = data["estadisticas"] ?? {};
+      return Producto.fromJson(productoData);
+
+    } catch (e, stack) {
+      print("❌ Error en getProductoCompleto: $e");
+      print("📌 Stacktrace: $stack");
+      rethrow;
+    }
   }
 }

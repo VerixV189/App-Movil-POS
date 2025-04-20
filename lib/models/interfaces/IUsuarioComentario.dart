@@ -2,13 +2,13 @@
 class UsuarioComentario {
   final int id;
   final String username;
-  final String url_profile;
+  final String? url_profile;
 
   UsuarioComentario({
     required this.id,
     
     required this.username,
-    required this.url_profile,
+    this.url_profile,
   });
 
   // Método para convertir el JSON recibido del backend en un objeto UsuarioComentario
