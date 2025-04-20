@@ -3,9 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:test/models/BackendExceptionDTO.dart';
 import 'package:test/models/interfaces/IComentario.dart';
 import 'package:test/models/interfaces/IProducto.dart';
+import 'package:test/providers/CarritoProvider.dart';
 import 'package:test/providers/UserProvider.dart';
 import 'package:test/screens/HomePage/ImageModalViewer.dart';
 import 'package:test/services/API/server_url.dart';
+import 'package:test/services/carritoService.dart';
 import 'package:test/services/comentarioService.dart';
 import 'package:test/services/producto_service.dart';
 import 'package:test/widgets/reviews/add_comment_modal.dart';
@@ -120,6 +122,32 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     }
   }
 
+
+//para el carrito
+  Future<void> _agregarProductoAlCarrito(int productoId) async {
+    try {
+      
+      final carritoProvider = Provider.of<CarritoProvider>(context,listen: false);
+      await carritoProvider.agregarProducto(productoId);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("✅ Producto agregado al carrito"),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      print("❌ Error al agregar al carrito: $e");
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Error al agregar producto al carrito"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Producto>(
@@ -208,9 +236,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () => _agregarProductoAlCarrito(producto.id),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.cyan,
+                    backgroundColor: Colors.yellow,
                     padding: const EdgeInsets.symmetric(
                       vertical: 12,
                       horizontal: 20,

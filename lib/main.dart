@@ -5,6 +5,7 @@ import 'package:test/auth/register_screen.dart';
 import 'package:test/auth/welcome_screen.dart';
 import 'package:test/models/BackendExceptionDTO.dart';
 import 'package:test/models/interfaces/IUsuario.dart';
+import 'package:test/providers/CarritoProvider.dart';
 import 'package:test/providers/CategoriaProvider.dart';
 import 'package:test/providers/LoadingProvider.dart';
 import 'package:test/providers/ProductoProvider.dart';
@@ -41,6 +42,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => LoadingProvider()),
         ChangeNotifierProvider(create: (_) => CategoriaSeleccionadaProvider()),
         ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => CarritoProvider()),
         ChangeNotifierProvider(
           create: (_) {
             final userProvider = UserProvider();
